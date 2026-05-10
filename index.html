@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0B0B0F" />
-  <meta name="description" content="Honest course reviews and student community for Dalhousie University." />
+  <meta name="description" content="Honest course and professor reviews for Dalhousie University students." />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="Course Cycle" />
@@ -26,17 +26,14 @@
     </div>
     <div class="nav-links">
       <button class="nav-btn active" data-page="reviews">Course Reviews</button>
-      <button class="nav-btn" data-page="channel">Student Channel</button>
-      <button class="nav-btn" data-page="courses">Browse Courses</button>
+      <button class="nav-btn" data-page="professors">Rate My Professor</button>
     </div>
     <div class="nav-right">
       <button class="install-btn" id="installBtn" style="display:none;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v13M7 11l5 5 5-5"/><path d="M3 19h18"/></svg>
         Install App
       </button>
-      <!-- Signed-out state -->
       <button class="login-btn" id="loginBtn">Sign In</button>
-      <!-- Signed-in state -->
       <div class="user-menu" id="userMenu" style="display:none;">
         <button class="user-btn" id="userBtn">
           <div class="user-avatar" id="userAvatar"></div>
@@ -66,18 +63,11 @@
           <p class="modal-sub">Dalhousie students only &mdash; all fields required</p>
         </div>
       </div>
-
       <div class="modal-steps">
-        <div class="modal-step active" id="step1">
-          <div class="step-num">1</div><span>Your Info</span>
-        </div>
+        <div class="modal-step active" id="step1"><div class="step-num">1</div><span>Your Info</span></div>
         <div class="step-line"></div>
-        <div class="modal-step" id="step2">
-          <div class="step-num">2</div><span>Dal ID Upload</span>
-        </div>
+        <div class="modal-step" id="step2"><div class="step-num">2</div><span>Dal ID Upload</span></div>
       </div>
-
-      <!-- Step 1: Basic Info -->
       <div id="stepContent1">
         <div class="field-group">
           <label class="field-label">Full Name *</label>
@@ -103,8 +93,6 @@
         </div>
         <button class="btn-primary full-width" id="nextStep">Continue &rarr;</button>
       </div>
-
-      <!-- Step 2: ID Upload -->
       <div id="stepContent2" style="display:none;">
         <div class="id-upload-area" id="idUploadArea">
           <div class="id-upload-icon">🪪</div>
@@ -123,7 +111,6 @@
           <button class="btn-primary" id="submitLogin">Verify &amp; Sign In</button>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -134,36 +121,31 @@
         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/></svg>
         Student-Powered Reviews
       </div>
-      <h1>
-        The Student Voice of<br/>
-        <span class="highlight">Dalhousie University</span>
-      </h1>
-      <p>Real reviews from real Dal students. Discover what courses are actually like before you register — and connect with your community.</p>
+      <h1>The Student Voice of<br/><span class="highlight">Dalhousie University</span></h1>
+      <p>Honest course and professor reviews from real Dal students — make smarter decisions before you register.</p>
       <div class="hero-btns">
-        <button class="btn-primary" id="heroReviewBtn">Write a Review</button>
-        <button class="btn-outline" id="heroChatBtn">Join the Channel</button>
+        <button class="btn-primary" id="heroReviewBtn">Write a Course Review</button>
+        <button class="btn-outline" id="heroProfBtn">Rate a Professor</button>
       </div>
       <div class="hero-stats">
-        <div class="stat"><span id="statReviews">0</span><small>Reviews</small></div>
-        <div class="stat"><span id="statCourses">0</span><small>Courses</small></div>
-        <div class="stat"><span id="statMessages">0</span><small>Messages</small></div>
+        <div class="stat"><span id="statReviews">0</span><small>Course Reviews</small></div>
+        <div class="stat"><span id="statProfs">0</span><small>Professors Rated</small></div>
+        <div class="stat"><span id="statStudents">0</span><small>Students</small></div>
       </div>
     </div>
   </header>
 
   <div class="section-glow"></div>
 
-  <!-- MAIN -->
   <main>
 
-    <!-- REVIEWS PAGE -->
+    <!-- COURSE REVIEWS PAGE -->
     <section class="page active" id="reviews-page">
       <div class="container">
         <div class="page-header">
           <h2>Course Reviews</h2>
           <button class="btn-primary" id="openReviewForm">+ Write a Review</button>
         </div>
-
         <div class="filter-bar">
           <input type="text" id="searchInput" placeholder="Search by course name or code..." class="search-input" />
           <select id="filterDept" class="filter-select">
@@ -186,8 +168,6 @@
             <option value="3">3+ Stars</option>
           </select>
         </div>
-
-        <!-- Review Form -->
         <div class="review-form-wrap" id="reviewFormWrap" style="display:none;">
           <div class="review-form">
             <h3>Write a Course Review</h3>
@@ -211,28 +191,15 @@
                 <label>Term Completed *</label>
                 <select id="termSelect" class="form-input">
                   <option value="">Select term</option>
-                  <option>Fall 2025</option>
-                  <option>Winter 2025</option>
-                  <option>Summer 2025</option>
-                  <option>Fall 2024</option>
-                  <option>Winter 2024</option>
-                  <option>Summer 2024</option>
+                  <option>Fall 2025</option><option>Winter 2025</option><option>Summer 2025</option>
+                  <option>Fall 2024</option><option>Winter 2024</option><option>Summer 2024</option>
                 </select>
               </div>
             </div>
             <div class="form-row three-col">
-              <div class="form-group">
-                <label>Overall Rating *</label>
-                <div class="star-input" id="ratingOverall" data-field="overall"></div>
-              </div>
-              <div class="form-group">
-                <label>Difficulty</label>
-                <div class="star-input" id="ratingDifficulty" data-field="difficulty"></div>
-              </div>
-              <div class="form-group">
-                <label>Workload</label>
-                <div class="star-input" id="ratingWorkload" data-field="workload"></div>
-              </div>
+              <div class="form-group"><label>Overall Rating *</label><div class="star-input" id="ratingOverall" data-field="overall"></div></div>
+              <div class="form-group"><label>Difficulty</label><div class="star-input" id="ratingDifficulty" data-field="difficulty"></div></div>
+              <div class="form-group"><label>Workload</label><div class="star-input" id="ratingWorkload" data-field="workload"></div></div>
             </div>
             <div class="form-group">
               <label>Your Review *</label>
@@ -252,7 +219,6 @@
             </div>
           </div>
         </div>
-
         <div id="reviewsList"></div>
         <div class="empty-state" id="reviewsEmpty">
           <div class="empty-icon">📝</div>
@@ -262,43 +228,136 @@
       </div>
     </section>
 
-    <!-- CHANNEL PAGE -->
-    <section class="page" id="channel-page">
-      <div class="container channel-layout">
-        <div class="channel-sidebar">
-          <h3>Channels</h3>
-          <ul class="channel-list">
-            <li class="channel-item active" data-channel="general"># general</li>
-            <li class="channel-item" data-channel="course-help"># course-help</li>
-            <li class="channel-item" data-channel="study-groups"># study-groups</li>
-            <li class="channel-item" data-channel="internships"># internships</li>
-            <li class="channel-item" data-channel="campus-life"># campus-life</li>
-            <li class="channel-item" data-channel="textbooks"># textbooks</li>
-          </ul>
-        </div>
-        <div class="channel-main">
-          <div class="channel-header">
-            <span id="currentChannelName"># general</span>
-            <span id="currentChannelDesc" class="channel-desc">General student discussion</span>
-          </div>
-          <div class="messages-area" id="messagesArea"></div>
-          <div class="message-input-area">
-            <input type="text" id="messageInput" placeholder="Message #general..." class="message-input" />
-            <button class="btn-primary" id="sendMessage">Send</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- COURSES PAGE -->
-    <section class="page" id="courses-page">
+    <!-- RATE MY PROFESSOR PAGE -->
+    <section class="page" id="professors-page">
       <div class="container">
-        <div class="page-header"><h2>Browse Courses</h2></div>
-        <div class="courses-grid" id="coursesGrid"></div>
-        <div class="empty-state" id="coursesEmpty">
-          <div class="empty-icon">📚</div>
-          <h3>No courses reviewed yet</h3>
-          <p>Course cards appear here after students submit reviews.</p>
+        <div class="page-header">
+          <h2>Rate My Professor</h2>
+          <button class="btn-primary" id="openProfForm">+ Rate a Professor</button>
+        </div>
+
+        <!-- Professor search -->
+        <div class="filter-bar">
+          <input type="text" id="profSearchInput" placeholder="Search professor by name or department..." class="search-input" />
+          <select id="filterProfDept" class="filter-select">
+            <option value="">All Departments</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Management">Management</option>
+            <option value="Biology">Biology</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Physics">Physics</option>
+            <option value="English">English</option>
+            <option value="Economics">Economics</option>
+            <option value="Psychology">Psychology</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Law">Law</option>
+          </select>
+        </div>
+
+        <!-- Professor Rating Form -->
+        <div class="review-form-wrap" id="profFormWrap" style="display:none;">
+          <div class="review-form">
+            <h3>Rate a Professor</h3>
+            <p class="form-note">Share your honest experience to help fellow Dal students.</p>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Professor Name *</label>
+                <input type="text" id="profRateName" placeholder="e.g. Dr. Jane Smith" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label>Department *</label>
+                <select id="profRateDept" class="form-input">
+                  <option value="">Select department</option>
+                  <option>Computer Science</option><option>Mathematics</option><option>Statistics</option>
+                  <option>Management</option><option>Economics</option><option>Biology</option>
+                  <option>Chemistry</option><option>Physics</option><option>Engineering</option>
+                  <option>English</option><option>Psychology</option><option>Sociology</option>
+                  <option>Political Science</option><option>History</option><option>Philosophy</option>
+                  <option>Law</option><option>Kinesiology</option><option>Nursing</option>
+                  <option>Architecture</option><option>Oceanography</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Course Taught</label>
+                <input type="text" id="profRateCourse" placeholder="e.g. CSCI 2110" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label>Term *</label>
+                <select id="profRateTerm" class="form-input">
+                  <option value="">Select term</option>
+                  <option>Fall 2025</option><option>Winter 2025</option><option>Summer 2025</option>
+                  <option>Fall 2024</option><option>Winter 2024</option><option>Summer 2024</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Rating categories -->
+            <div class="rating-categories">
+              <div class="rating-cat">
+                <span class="rating-cat-label">Overall</span>
+                <div class="star-input" id="profRatingOverall" data-field="profOverall"></div>
+              </div>
+              <div class="rating-cat">
+                <span class="rating-cat-label">Teaching Quality</span>
+                <div class="star-input" id="profRatingTeaching" data-field="profTeaching"></div>
+              </div>
+              <div class="rating-cat">
+                <span class="rating-cat-label">Clarity</span>
+                <div class="star-input" id="profRatingClarity" data-field="profClarity"></div>
+              </div>
+              <div class="rating-cat">
+                <span class="rating-cat-label">Helpfulness</span>
+                <div class="star-input" id="profRatingHelp" data-field="profHelp"></div>
+              </div>
+              <div class="rating-cat">
+                <span class="rating-cat-label">Grading Fairness</span>
+                <div class="star-input" id="profRatingGrading" data-field="profGrading"></div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top:1rem;">
+              <label>Your Review *</label>
+              <textarea id="profReviewText" placeholder="Share your experience with this professor — teaching style, feedback quality, exam difficulty, tips..." class="form-textarea" rows="5"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Would you take this professor again?</label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="profRecommend" value="yes" /> Yes, definitely</label>
+                <label class="radio-label"><input type="radio" name="profRecommend" value="maybe" /> Maybe</label>
+                <label class="radio-label"><input type="radio" name="profRecommend" value="no" /> No</label>
+              </div>
+            </div>
+
+            <!-- Anonymous toggle -->
+            <div class="anon-toggle-wrap">
+              <label class="anon-toggle">
+                <input type="checkbox" id="anonToggle" checked />
+                <div class="anon-track">
+                  <div class="anon-thumb"></div>
+                </div>
+                <div class="anon-label-text">
+                  <span id="anonLabel">Post Anonymously</span>
+                  <span id="anonSub" class="anon-sub">Your name will not be shown</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn-cancel" id="cancelProfReview">Cancel</button>
+              <button class="btn-primary" id="submitProfReview">Submit Rating</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="profList"></div>
+        <div class="empty-state" id="profEmpty">
+          <div class="empty-icon">👨‍🏫</div>
+          <h3>No professor ratings yet</h3>
+          <p>Be the first to rate a Dalhousie professor!</p>
         </div>
       </div>
     </section>

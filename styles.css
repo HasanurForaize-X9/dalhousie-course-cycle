@@ -1059,6 +1059,115 @@ main { padding: 2.5rem 0; }
 .empty-icon  { font-size: 3rem; margin-bottom: 1rem; }
 .empty-state h3 { font-size: 1.05rem; margin-bottom: 0.5rem; color: var(--text); font-weight: 700; }
 
+/* ===== PROFESSOR RATINGS ===== */
+.rating-categories {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+}
+
+.rating-cat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.rating-cat-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.prof-card .review-card-header { align-items: flex-start; }
+
+.prof-name-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.prof-avatar-lg {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 1rem;
+  color: var(--black);
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(255,208,0,0.2);
+}
+
+/* Anonymous toggle */
+.anon-toggle-wrap {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.25rem;
+  margin-top: 0.75rem;
+}
+
+.anon-toggle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.anon-toggle input { display: none; }
+
+.anon-track {
+  width: 44px; height: 24px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.anon-toggle input:checked + .anon-track {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  box-shadow: 0 0 10px rgba(255,208,0,0.3);
+}
+
+.anon-thumb {
+  width: 18px; height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px; left: 2px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.anon-toggle input:checked + .anon-track .anon-thumb {
+  transform: translateX(20px);
+}
+
+.anon-label-text { display: flex; flex-direction: column; gap: 0.1rem; }
+
+#anonLabel { font-weight: 700; font-size: 0.9rem; color: var(--white); }
+.anon-sub  { font-size: 0.78rem; color: var(--text-muted); }
+
+.anon-label-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+}
+
 /* ===== AUTOCOMPLETE ===== */
 .autocomplete-list {
   display: none;

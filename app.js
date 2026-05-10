@@ -3,9 +3,9 @@
 const state = {
   user: null,
   reviews: [],
-  messages: {},
-  activeChannel: 'general',
-  ratings: { overall: 0, difficulty: 0, workload: 0 },
+  profRatings: [],
+  ratings:     { overall: 0, difficulty: 0, workload: 0 },
+  profRatingsForm: { profOverall: 0, profTeaching: 0, profClarity: 0, profHelp: 0, profGrading: 0 },
 };
 
 const AVATAR_COLORS = [
@@ -13,22 +13,12 @@ const AVATAR_COLORS = [
   '#97266D','#B7791F','#2A4365','#285E61','#553C9A'
 ];
 
-const channelDescs = {
-  'general':      'General student discussion',
-  'course-help':  'Ask for help on specific courses',
-  'study-groups': 'Find and form study groups',
-  'internships':  'Co-op and internship tips',
-  'campus-life':  'Events, clubs and campus news',
-  'textbooks':    'Buy, sell and share textbooks',
-};
-
 // ===== INIT =====
 function init() {
   loadFromStorage();
   buildStarInputs();
   renderReviews();
-  renderMessages();
-  renderCourses();
+  renderProfRatings();
   updateStats();
   attachEvents();
   attachAutocomplete();
@@ -38,18 +28,18 @@ function init() {
 // ===== STORAGE =====
 function loadFromStorage() {
   try {
-    const r = localStorage.getItem('dal_reviews');
-    const m = localStorage.getItem('dal_messages');
-    const u = localStorage.getItem('dal_user');
-    if (r) state.reviews  = JSON.parse(r);
-    if (m) state.messages = JSON.parse(m);
-    if (u) { state.user = JSON.parse(u); updateLoginUI(); }
-  } catch (e) { /* silent */ }
+    const r  = localStorage.getItem('dal_reviews');
+    const pr = localStorage.getItem('dal_prof_ratings');
+    const u  = localStorage.getItem('dal_user');
+    if (r)  state.reviews     = JSON.parse(r);
+    if (pr) state.profRatings = JSON.parse(pr);
+    if (u)  { state.user = JSON.parse(u); updateLoginUI(); }
+  } catch(e) { /* silent */ }
 }
 
 function save() {
-  localStorage.setItem('dal_reviews',  JSON.stringify(state.reviews));
-  localStorage.setItem('dal_messages', JSON.stringify(state.messages));
+  localStorage.setItem('dal_reviews',      JSON.stringify(state.reviews));
+  localStorage.setItem('dal_prof_ratings', JSON.stringify(state.profRatings));
 }
 
 // ===== NAVIGATION =====
@@ -58,48 +48,51 @@ function navigateTo(page) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(page + '-page').classList.add('active');
   document.querySelector(`[data-page="${page}"]`).classList.add('active');
-  if (page === 'channel') renderMessages();
-  if (page === 'courses') renderCourses();
+  if (page === 'professors') renderProfRatings();
 }
 
 // ===== STAR INPUTS =====
 function buildStarInputs() {
-  ['ratingOverall','ratingDifficulty','ratingWorkload'].forEach(id => {
+  const allFields = [
+    { id: 'ratingOverall',     field: 'overall',      group: 'ratings' },
+    { id: 'ratingDifficulty',  field: 'difficulty',   group: 'ratings' },
+    { id: 'ratingWorkload',    field: 'workload',      group: 'ratings' },
+    { id: 'profRatingOverall', field: 'profOverall',   group: 'profRatingsForm' },
+    { id: 'profRatingTeaching',field: 'profTeaching',  group: 'profRatingsForm' },
+    { id: 'profRatingClarity', field: 'profClarity',   group: 'profRatingsForm' },
+    { id: 'profRatingHelp',    field: 'profHelp',      group: 'profRatingsForm' },
+    { id: 'profRatingGrading', field: 'profGrading',   group: 'profRatingsForm' },
+  ];
+  allFields.forEach(({ id, field, group }) => {
     const el = document.getElementById(id);
     if (!el) return;
-    const field = el.dataset.field;
     el.innerHTML = '';
     for (let i = 1; i <= 5; i++) {
       const s = document.createElement('span');
-      s.className = 'star';
+      s.className  = 'star';
       s.textContent = '★';
       s.dataset.val = i;
-      s.addEventListener('click',      () => setRating(field, i, el));
+      s.addEventListener('click',      () => { state[group][field] = i; updateStars(i, el); });
       s.addEventListener('mouseenter', () => updateStars(i, el));
-      s.addEventListener('mouseleave', () => updateStars(state.ratings[field], el));
+      s.addEventListener('mouseleave', () => updateStars(state[group][field], el));
       el.appendChild(s);
     }
   });
 }
 
-function setRating(field, val, el) {
-  state.ratings[field] = val;
-  updateStars(val, el);
-}
-
 function updateStars(val, el) {
-  el.querySelectorAll('.star').forEach(s => {
-    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
-  });
+  el.querySelectorAll('.star').forEach(s =>
+    s.classList.toggle('active', parseInt(s.dataset.val) <= val)
+  );
 }
 
-// ===== RENDER REVIEWS =====
+// ===== RENDER COURSE REVIEWS =====
 function renderReviews() {
-  const search      = (document.getElementById('searchInput')?.value  || '').toLowerCase();
+  const search      = (document.getElementById('searchInput')?.value || '').toLowerCase();
   const dept        =  document.getElementById('filterDept')?.value   || '';
   const ratingFilter= parseInt(document.getElementById('filterRating')?.value || '0');
 
-  let filtered = [...state.reviews].filter(r => {
+  const filtered = [...state.reviews].filter(r => {
     const matchSearch = !search ||
       r.courseCode.toLowerCase().includes(search) ||
       r.courseName.toLowerCase().includes(search) ||
@@ -114,24 +107,21 @@ function renderReviews() {
 
   if (!filtered.length) {
     list.innerHTML = '';
-    const query = search || dept || ratingFilter;
-    empty.innerHTML = query
+    const q = search || dept || ratingFilter;
+    empty.innerHTML = q
       ? `<div class="empty-icon">🔍</div>
-         <h3>No reviews for "${escapeHtml(document.getElementById('searchInput').value || '')}" yet</h3>
+         <h3>No reviews for "${escapeHtml(document.getElementById('searchInput').value)}" yet</h3>
          <p>Be the first to review this course!</p>
          <button class="btn-primary" style="margin-top:1rem;" onclick="document.getElementById('openReviewForm').click()">Write the First Review</button>`
-      : `<div class="empty-icon">📝</div>
-         <h3>No reviews yet</h3>
-         <p>Be the first Dalhousie student to share your course experience!</p>`;
+      : `<div class="empty-icon">📝</div><h3>No reviews yet</h3><p>Be the first Dalhousie student to share your course experience!</p>`;
     empty.style.display = 'block';
     return;
   }
   empty.style.display = 'none';
   list.innerHTML = `<div class="reviews-list">${filtered.map(reviewCard).join('')}</div>`;
-
-  list.querySelectorAll('.helpful-btn').forEach(btn => {
-    btn.addEventListener('click', () => toggleHelpful(parseInt(btn.dataset.id)));
-  });
+  list.querySelectorAll('.helpful-btn').forEach(btn =>
+    btn.addEventListener('click', () => toggleHelpful(parseInt(btn.dataset.id)))
+  );
 }
 
 function reviewCard(r) {
@@ -167,14 +157,12 @@ function reviewCard(r) {
       <div class="reviewer-info">
         <div class="avatar" style="background:${color}">${initials}</div>
         <span>${escapeHtml(r.author)} &bull; ${escapeHtml(r.program || 'Student')}</span>
-        ${r.verified ? '<span class="verified-badge">✓ Verified Dal Student</span>' : ''}
+        ${r.verified ? '<span class="verified-badge">✓ Verified</span>' : ''}
         <span class="recommend-badge ${recClass}">${recText}</span>
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;">
-        <span style="color:var(--text-light);font-size:0.8rem;">${r.date}</span>
-        <button class="helpful-btn ${liked ? 'liked' : ''}" data-id="${r.id}">
-          👍 Helpful (${r.helpful})
-        </button>
+        <span style="color:var(--text-dim);font-size:0.8rem;">${r.date}</span>
+        <button class="helpful-btn ${liked ? 'liked' : ''}" data-id="${r.id}">👍 Helpful (${r.helpful})</button>
       </div>
     </div>
   </div>`;
@@ -192,155 +180,204 @@ function toggleHelpful(id) {
   renderReviews();
 }
 
-// ===== SUBMIT REVIEW =====
+// ===== SUBMIT COURSE REVIEW =====
 function submitReview() {
-  const code      = document.getElementById('courseCode').value.trim();
-  const name      = document.getElementById('courseName').value.trim();
-  const prof      = document.getElementById('profName').value.trim();
-  const term      = document.getElementById('termSelect').value;
-  const text      = document.getElementById('reviewText').value.trim();
+  const code = document.getElementById('courseCode').value.trim();
+  const name = document.getElementById('courseName').value.trim();
+  const prof = document.getElementById('profName').value.trim();
+  const term = document.getElementById('termSelect').value;
+  const text = document.getElementById('reviewText').value.trim();
   const recommend = document.querySelector('input[name="recommend"]:checked')?.value;
 
   if (!code || !name || !term || !text || !state.ratings.overall) {
-    showToast('Please fill in all required fields and set an overall rating.', 'error');
-    return;
+    showToast('Please fill in all required fields and set an overall rating.', 'error'); return;
   }
   if (text.length < 50) {
-    showToast('Review must be at least 50 characters. Be specific to help your peers!', 'error');
-    return;
+    showToast('Review must be at least 50 characters.', 'error'); return;
   }
   if (!state.user) {
     showToast('Please sign in first to submit a review.', 'error');
-    document.getElementById('loginModal').classList.add('open');
-    return;
+    document.getElementById('loginModal').classList.add('open'); return;
   }
 
   state.reviews.unshift({
     id: Date.now(),
-    courseCode: code.toUpperCase(),
-    courseName: name,
-    prof, term,
-    overall:    state.ratings.overall,
+    courseCode: code.toUpperCase(), courseName: name, prof, term,
+    overall: state.ratings.overall,
     difficulty: state.ratings.difficulty || 3,
     workload:   state.ratings.workload   || 3,
-    text,
-    recommend:  recommend || 'maybe',
-    author:     state.user.name,
-    bannerId:   state.user.bannerId,
-    program:    state.user.program,
-    verified:   state.user.verified || false,
-    helpful:    0,
-    date:       new Date().toISOString().split('T')[0],
+    text, recommend: recommend || 'maybe',
+    author: state.user.name, bannerId: state.user.bannerId,
+    program: state.user.program, verified: state.user.verified || false,
+    helpful: 0, date: new Date().toISOString().split('T')[0],
   });
 
   save();
   resetReviewForm();
-  document.getElementById('reviewFormWrap').style.display = 'none';
-  document.getElementById('openReviewForm').style.display = '';
+  document.getElementById('reviewFormWrap').style.display  = 'none';
+  document.getElementById('openReviewForm').style.display  = '';
   renderReviews();
   updateStats();
   showToast('Your review has been posted. Thank you!', 'success');
 }
 
 function resetReviewForm() {
-  ['courseCode','courseName','profName','reviewText'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
+  ['courseCode','courseName','profName','reviewText'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('termSelect').value = '';
   document.querySelectorAll('input[name="recommend"]').forEach(r => r.checked = false);
   state.ratings = { overall: 0, difficulty: 0, workload: 0 };
   buildStarInputs();
 }
 
-// ===== CHANNEL =====
-function renderMessages() {
-  const area = document.getElementById('messagesArea');
-  if (!area) return;
-  const msgs = state.messages[state.activeChannel] || [];
-  area.innerHTML = msgs.length
-    ? msgs.map(messageEl).join('')
-    : `<div class="empty-state"><div class="empty-icon">💬</div><h3>No messages yet</h3><p>Be the first to say something in #${state.activeChannel}!</p></div>`;
-  area.scrollTop = area.scrollHeight;
+// ===== RENDER PROFESSOR RATINGS =====
+function renderProfRatings() {
+  const search = (document.getElementById('profSearchInput')?.value || '').toLowerCase();
+  const dept   =  document.getElementById('filterProfDept')?.value  || '';
 
-  const input = document.getElementById('messageInput');
-  if (input) input.placeholder = `Message #${state.activeChannel}...`;
-  document.getElementById('currentChannelName').textContent = `# ${state.activeChannel}`;
-  document.getElementById('currentChannelDesc').textContent = channelDescs[state.activeChannel] || '';
+  const filtered = [...state.profRatings].filter(r => {
+    const matchSearch = !search ||
+      r.profName.toLowerCase().includes(search) ||
+      r.dept.toLowerCase().includes(search) ||
+      r.course?.toLowerCase().includes(search);
+    const matchDept = !dept || r.dept === dept;
+    return matchSearch && matchDept;
+  }).sort((a, b) => b.id - a.id);
+
+  const list  = document.getElementById('profList');
+  const empty = document.getElementById('profEmpty');
+
+  if (!filtered.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = `<div class="reviews-list">${filtered.map(profCard).join('')}</div>`;
 }
 
-function messageEl(m) {
-  const initials = m.author.split(' ').map(w => w[0]).join('').toUpperCase();
+function profCard(r) {
+  const stars  = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+  const initials = r.profName.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0,2);
+  const color  = AVATAR_COLORS[r.id % AVATAR_COLORS.length];
+  const recMap = {
+    yes:   ['recommend-yes',   'Would take again'],
+    maybe: ['recommend-maybe', 'Maybe again'],
+    no:    ['recommend-no',    'Would not take again'],
+  };
+  const [recClass, recText] = recMap[r.recommend] || ['recommend-maybe',''];
+
+  const authorLine = r.anonymous
+    ? `<span class="anon-label-chip">👤 Anonymous Student</span>`
+    : `<div class="avatar" style="background:${color}">${initials.slice(0,1)}</div>
+       <span>${escapeHtml(r.authorName)} &bull; ${escapeHtml(r.authorProgram || 'Student')}</span>
+       ${r.verified ? '<span class="verified-badge">✓ Verified</span>' : ''}`;
+
   return `
-  <div class="message">
-    <div class="msg-avatar" style="background:${m.color}">${initials}</div>
-    <div class="msg-body">
-      <div class="msg-header">
-        <span class="msg-name">${escapeHtml(m.author)}</span>
-        ${m.verified ? '<span class="verified-badge-sm">✓</span>' : ''}
-        <span class="msg-time">${m.time}</span>
+  <div class="review-card prof-card">
+    <div class="review-card-header">
+      <div>
+        <div class="prof-name-badge">
+          <div class="prof-avatar-lg" style="background:${color}">${initials}</div>
+          <div>
+            <div class="course-title">${escapeHtml(r.profName)}</div>
+            <div class="course-meta">${escapeHtml(r.dept)}${r.course ? ' &bull; ' + escapeHtml(r.course) : ''} &bull; ${escapeHtml(r.term)}</div>
+          </div>
+        </div>
       </div>
-      <div class="msg-text">${escapeHtml(m.text)}</div>
+      <div class="review-rating">
+        <div class="stars-display">${stars(r.overall)}</div>
+        <div class="rating-metrics">
+          <span class="metric-tag">Teaching: ${stars(r.teaching)}</span>
+          <span class="metric-tag">Clarity: ${stars(r.clarity)}</span>
+          <span class="metric-tag">Helpfulness: ${stars(r.helpfulness)}</span>
+          <span class="metric-tag">Grading: ${stars(r.grading)}</span>
+        </div>
+      </div>
+    </div>
+    <div class="review-body">${escapeHtml(r.text)}</div>
+    <div class="review-footer">
+      <div class="reviewer-info">${authorLine}</div>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <span style="color:var(--text-dim);font-size:0.8rem;">${r.date}</span>
+        <span class="recommend-badge ${recClass}">${recText}</span>
+      </div>
     </div>
   </div>`;
 }
 
-function sendMessage() {
-  const input = document.getElementById('messageInput');
-  const text  = input.value.trim();
-  if (!text) return;
-  if (!state.user) {
-    showToast('Please sign in to send messages.', 'error');
-    document.getElementById('loginModal').classList.add('open');
-    return;
-  }
-  if (!state.messages[state.activeChannel]) state.messages[state.activeChannel] = [];
-  const color = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
-  const time  = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  state.messages[state.activeChannel].push({ id: Date.now(), author: state.user.name, text, time, color, verified: state.user.verified || false });
-  save();
-  input.value = '';
-  renderMessages();
-  updateStats();
-}
+// ===== SUBMIT PROFESSOR RATING =====
+function submitProfReview() {
+  const profName = document.getElementById('profRateName').value.trim();
+  const dept     = document.getElementById('profRateDept').value;
+  const course   = document.getElementById('profRateCourse').value.trim();
+  const term     = document.getElementById('profRateTerm').value;
+  const text     = document.getElementById('profReviewText').value.trim();
+  const recommend= document.querySelector('input[name="profRecommend"]:checked')?.value;
+  const anonymous= document.getElementById('anonToggle').checked;
 
-// ===== COURSES =====
-function renderCourses() {
-  const grouped = {};
-  state.reviews.forEach(r => {
-    if (!grouped[r.courseCode]) grouped[r.courseCode] = { code: r.courseCode, name: r.courseName, reviews: [] };
-    grouped[r.courseCode].reviews.push(r);
+  if (!profName || !dept || !term || !text || !state.profRatingsForm.profOverall) {
+    showToast('Please fill in all required fields and set an overall rating.', 'error'); return;
+  }
+  if (text.length < 30) {
+    showToast('Review must be at least 30 characters.', 'error'); return;
+  }
+  if (!state.user) {
+    showToast('Please sign in first to submit a rating.', 'error');
+    document.getElementById('loginModal').classList.add('open'); return;
+  }
+
+  state.profRatings.unshift({
+    id:           Date.now(),
+    profName, dept, course, term,
+    overall:      state.profRatingsForm.profOverall,
+    teaching:     state.profRatingsForm.profTeaching  || 3,
+    clarity:      state.profRatingsForm.profClarity   || 3,
+    helpfulness:  state.profRatingsForm.profHelp      || 3,
+    grading:      state.profRatingsForm.profGrading   || 3,
+    text,
+    recommend:    recommend || 'maybe',
+    anonymous,
+    authorName:   anonymous ? '' : state.user.name,
+    authorProgram:anonymous ? '' : (state.user.program || ''),
+    verified:     state.user.verified || false,
+    date:         new Date().toISOString().split('T')[0],
   });
 
-  const grid   = document.getElementById('coursesGrid');
-  const empty  = document.getElementById('coursesEmpty');
-  const courses = Object.values(grouped);
-
-  if (!courses.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  grid.innerHTML = courses.map(c => {
-    const avg   = (c.reviews.reduce((s, r) => s + r.overall, 0) / c.reviews.length).toFixed(1);
-    const stars = '★'.repeat(Math.round(avg)) + '☆'.repeat(5 - Math.round(avg));
-    return `
-    <div class="course-card" onclick="filterByCourse('${escapeAttr(c.code)}')">
-      <div class="course-card-code">${escapeHtml(c.code)}</div>
-      <div class="course-card-name">${escapeHtml(c.name)}</div>
-      <div class="course-card-avg">${stars} ${avg}/5</div>
-      <div class="course-card-count">${c.reviews.length} review${c.reviews.length !== 1 ? 's' : ''}</div>
-    </div>`;
-  }).join('');
+  save();
+  resetProfForm();
+  document.getElementById('profFormWrap').style.display = 'none';
+  document.getElementById('openProfForm').style.display = '';
+  renderProfRatings();
+  updateStats();
+  showToast('Your professor rating has been posted!', 'success');
 }
 
-function filterByCourse(code) {
-  navigateTo('reviews');
-  document.getElementById('searchInput').value = code;
-  renderReviews();
+function resetProfForm() {
+  ['profRateName','profRateCourse','profReviewText'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('profRateDept').value = '';
+  document.getElementById('profRateTerm').value = '';
+  document.querySelectorAll('input[name="profRecommend"]').forEach(r => r.checked = false);
+  document.getElementById('anonToggle').checked = true;
+  updateAnonLabel(true);
+  state.profRatingsForm = { profOverall: 0, profTeaching: 0, profClarity: 0, profHelp: 0, profGrading: 0 };
+  buildStarInputs();
+}
+
+function updateAnonLabel(isAnon) {
+  document.getElementById('anonLabel').textContent = isAnon ? 'Post Anonymously' : 'Post with Your Name';
+  document.getElementById('anonSub').textContent   = isAnon ? 'Your name will not be shown' : 'Your name will be visible on the rating';
 }
 
 // ===== STATS =====
 function updateStats() {
   document.getElementById('statReviews').textContent  = state.reviews.length;
-  document.getElementById('statCourses').textContent  = new Set(state.reviews.map(r => r.courseCode)).size;
-  document.getElementById('statMessages').textContent = Object.values(state.messages).reduce((s, a) => s + a.length, 0);
+  const profs = new Set(state.profRatings.map(r => r.profName.toLowerCase()));
+  document.getElementById('statProfs').textContent    = profs.size;
+  const students = new Set([
+    ...state.reviews.filter(r => r.bannerId).map(r => r.bannerId),
+    ...state.profRatings.filter(r => !r.anonymous && r.authorName).map(r => r.authorName),
+  ]);
+  document.getElementById('statStudents').textContent = students.size;
 }
 
 // ===== LOGIN =====
@@ -375,24 +412,22 @@ function goToStep1() {
 function submitLogin() {
   const idFile = document.getElementById('idFileInput').files[0];
   if (!idFile) {
-    showToast('Please upload your Dal student ID to verify your enrolment.', 'error');
-    return;
+    showToast('Please upload your Dal student ID to verify your enrolment.', 'error'); return;
   }
-
   const name    = document.getElementById('loginName').value.trim();
   const email   = document.getElementById('loginEmail').value.trim();
   const banner  = document.getElementById('loginBanner').value.trim();
   const program = document.getElementById('loginProgram').value.trim();
 
-  // Read the ID image and store a flag (not the raw image) confirming upload
-  const reader = new FileReader();
+  const reader  = new FileReader();
   reader.onload = () => {
     state.user = { name, email, bannerId: banner.toUpperCase(), program, verified: true };
     localStorage.setItem('dal_user', JSON.stringify(state.user));
     document.getElementById('loginModal').classList.remove('open');
     resetLoginModal();
     updateLoginUI();
-    showToast(`Welcome, ${name}! Your Dal ID has been verified.`, 'success');
+    updateStats();
+    showToast(`Welcome, ${name}! Your Dal ID has been verified. ✓`, 'success');
   };
   reader.readAsDataURL(idFile);
 }
@@ -404,31 +439,29 @@ function resetLoginModal() {
   document.getElementById('step2').classList.remove('active');
   document.getElementById('idPreview').style.display = 'none';
   document.getElementById('idPreview').innerHTML = '';
-  document.getElementById('idFileInput').value = '';
+  document.getElementById('idFileInput').value  = '';
 }
 
 function updateLoginUI() {
-  const loginBtn  = document.getElementById('loginBtn');
-  const userMenu  = document.getElementById('userMenu');
-  const userAvatar= document.getElementById('userAvatar');
-  const userBtnName = document.getElementById('userBtnName');
-  const header    = document.getElementById('userDropdownHeader');
+  const loginBtn = document.getElementById('loginBtn');
+  const userMenu = document.getElementById('userMenu');
 
   if (state.user) {
     loginBtn.style.display = 'none';
     userMenu.style.display = 'flex';
     const initials = state.user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
     const color    = AVATAR_COLORS[state.user.bannerId.charCodeAt(1) % AVATAR_COLORS.length];
-    userAvatar.textContent    = initials;
-    userAvatar.style.background = color;
-    userBtnName.textContent   = state.user.name.split(' ')[0];
-    header.innerHTML = `
+    const avatar   = document.getElementById('userAvatar');
+    avatar.textContent       = initials;
+    avatar.style.background  = color;
+    document.getElementById('userBtnName').textContent = state.user.name.split(' ')[0];
+    document.getElementById('userDropdownHeader').innerHTML = `
       <div class="dropdown-user-name">
         ${escapeHtml(state.user.name)}
         ${state.user.verified ? '<span class="verified-badge">✓ Verified</span>' : ''}
       </div>
       <div class="dropdown-user-meta">${escapeHtml(state.user.email)}</div>
-      <div class="dropdown-user-meta">${escapeHtml(state.user.bannerId)} &bull; ${escapeHtml(state.user.program || '')}</div>`;
+      <div class="dropdown-user-meta">${escapeHtml(state.user.bannerId)} &bull; ${escapeHtml(state.user.program || '')}`;
   } else {
     loginBtn.style.display = '';
     userMenu.style.display = 'none';
@@ -443,7 +476,7 @@ function signOut() {
   showToast('You have been signed out.', '');
 }
 
-// ===== INSTALL PROMPT (PWA) =====
+// ===== INSTALL PROMPT =====
 let deferredInstallPrompt = null;
 
 function listenForInstallPrompt() {
@@ -454,16 +487,14 @@ function listenForInstallPrompt() {
     if (btn) btn.style.display = 'flex';
   });
   window.addEventListener('appinstalled', () => {
-    const btn = document.getElementById('installBtn');
-    if (btn) btn.style.display = 'none';
-    showToast('App installed successfully!', 'success');
+    document.getElementById('installBtn').style.display = 'none';
+    showToast('App installed!', 'success');
   });
 }
 
 function triggerInstall() {
   if (!deferredInstallPrompt) {
-    showToast('Open this site in Chrome or Edge on Android to install the app.', '');
-    return;
+    showToast('Open in Chrome on Android to install.', ''); return;
   }
   deferredInstallPrompt.prompt();
   deferredInstallPrompt.userChoice.then(() => { deferredInstallPrompt = null; });
@@ -480,8 +511,7 @@ function showToast(msg, type = '') {
 
 // ===== HELPERS =====
 function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function escapeAttr(str) {
   return String(str).replace(/'/g, "\\'");
@@ -489,16 +519,10 @@ function escapeAttr(str) {
 
 // ===== AUTOCOMPLETE =====
 function attachAutocomplete() {
-  // Search bar on reviews page
   setupAutocomplete(
     document.getElementById('searchInput'),
-    (course) => {
-      document.getElementById('searchInput').value = course.code;
-      renderReviews();
-    }
+    (course) => { document.getElementById('searchInput').value = course.code; renderReviews(); }
   );
-
-  // Course code field in review form
   setupAutocomplete(
     document.getElementById('courseCode'),
     (course) => {
@@ -510,14 +534,11 @@ function attachAutocomplete() {
 
 function setupAutocomplete(inputEl, onSelect) {
   if (!inputEl) return;
-
-  // Wrap input in a positioned container, inheriting flex properties
   const wrap = document.createElement('div');
   const cs   = window.getComputedStyle(inputEl);
   wrap.style.position = 'relative';
   wrap.style.flex     = cs.flex !== 'none' ? cs.flex : '0 1 auto';
   wrap.style.minWidth = cs.minWidth;
-  wrap.style.width    = cs.width === 'auto' ? '' : cs.width;
   inputEl.style.width = '100%';
   inputEl.parentNode.insertBefore(wrap, inputEl);
   wrap.appendChild(inputEl);
@@ -526,19 +547,16 @@ function setupAutocomplete(inputEl, onSelect) {
   dropdown.className = 'autocomplete-list';
   wrap.appendChild(dropdown);
 
-  let currentMatches = [];
+  let currentMatches   = [];
   let clickingDropdown = false;
 
   function showSuggestions(query) {
-    if (!query) { close(); return; }
+    if (!query) { closeDropdown(); return; }
     const q = query.toLowerCase();
     currentMatches = DAL_COURSES.filter(c =>
-      c.code.toLowerCase().includes(q) ||
-      c.name.toLowerCase().includes(q)
+      c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
     ).slice(0, 8);
-
-    if (!currentMatches.length) { close(); return; }
-
+    if (!currentMatches.length) { closeDropdown(); return; }
     dropdown.innerHTML = currentMatches.map((c, i) => `
       <li class="autocomplete-item" data-idx="${i}">
         <span class="ac-code">${highlight(c.code, q)}</span>
@@ -547,78 +565,70 @@ function setupAutocomplete(inputEl, onSelect) {
     dropdown.style.display = 'block';
   }
 
-  function close() {
+  function closeDropdown() {
     dropdown.style.display = 'none';
     dropdown.querySelectorAll('.ac-active').forEach(el => el.classList.remove('ac-active'));
   }
 
   function selectIndex(i) {
-    if (currentMatches[i]) {
-      onSelect(currentMatches[i]);
-      close();
-    }
+    if (currentMatches[i]) { onSelect(currentMatches[i]); closeDropdown(); }
   }
 
-  // Use pointerdown flag so blur doesn't close dropdown before click fires
   dropdown.addEventListener('pointerdown', () => { clickingDropdown = true; });
-
   dropdown.addEventListener('click', e => {
     const li = e.target.closest('.autocomplete-item');
     if (li) selectIndex(parseInt(li.dataset.idx));
     clickingDropdown = false;
   });
-
-  inputEl.addEventListener('input', () => showSuggestions(inputEl.value));
-  inputEl.addEventListener('focus', () => { if (inputEl.value) showSuggestions(inputEl.value); });
-  inputEl.addEventListener('blur',  () => {
-    if (clickingDropdown) { clickingDropdown = false; return; }
-    close();
-  });
-
+  inputEl.addEventListener('input',  () => showSuggestions(inputEl.value));
+  inputEl.addEventListener('focus',  () => { if (inputEl.value) showSuggestions(inputEl.value); });
+  inputEl.addEventListener('blur',   () => { if (clickingDropdown) { clickingDropdown = false; return; } closeDropdown(); });
   inputEl.addEventListener('keydown', e => {
     if (dropdown.style.display === 'none') return;
     const items  = dropdown.querySelectorAll('.autocomplete-item');
     const active = dropdown.querySelector('.ac-active');
-
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       const next = active ? active.nextElementSibling : items[0];
-      active?.classList.remove('ac-active');
-      next?.classList.add('ac-active');
+      active?.classList.remove('ac-active'); next?.classList.add('ac-active');
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       const prev = active ? active.previousElementSibling : items[items.length - 1];
-      active?.classList.remove('ac-active');
-      prev?.classList.add('ac-active');
+      active?.classList.remove('ac-active'); prev?.classList.add('ac-active');
     } else if (e.key === 'Enter') {
       const idx = active ? parseInt(active.dataset.idx) : 0;
       if (currentMatches[idx]) { e.preventDefault(); selectIndex(idx); }
-    } else if (e.key === 'Escape') {
-      close();
-    }
+    } else if (e.key === 'Escape') { closeDropdown(); }
   });
 }
 
 function highlight(text, query) {
-  const safe = escapeHtml(text);
+  const safe  = escapeHtml(text);
   const safeQ = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return safe.replace(new RegExp(`(${safeQ})`, 'gi'), '<mark>$1</mark>');
 }
 
 // ===== EVENTS =====
 function attachEvents() {
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => navigateTo(btn.dataset.page));
-  });
+  document.querySelectorAll('.nav-btn').forEach(btn =>
+    btn.addEventListener('click', () => navigateTo(btn.dataset.page))
+  );
 
+  // Hero buttons
   document.getElementById('heroReviewBtn').addEventListener('click', () => {
     navigateTo('reviews');
     document.getElementById('reviewFormWrap').style.display = 'block';
     document.getElementById('openReviewForm').style.display = 'none';
     document.getElementById('reviewFormWrap').scrollIntoView({ behavior: 'smooth' });
   });
-  document.getElementById('heroChatBtn').addEventListener('click', () => navigateTo('channel'));
+  document.getElementById('heroProfBtn').addEventListener('click', () => {
+    navigateTo('professors');
+    document.getElementById('profFormWrap').style.display  = 'block';
+    document.getElementById('openProfForm').style.display  = 'none';
+    document.getElementById('profFormWrap').scrollIntoView({ behavior: 'smooth' });
+  });
 
+  // Course review form
   document.getElementById('openReviewForm').addEventListener('click', () => {
     document.getElementById('reviewFormWrap').style.display = 'block';
     document.getElementById('openReviewForm').style.display = 'none';
@@ -630,45 +640,40 @@ function attachEvents() {
     resetReviewForm();
   });
   document.getElementById('submitReview').addEventListener('click', submitReview);
-
   document.getElementById('searchInput').addEventListener('input', renderReviews);
   document.getElementById('filterDept').addEventListener('change', renderReviews);
   document.getElementById('filterRating').addEventListener('change', renderReviews);
 
-  document.querySelectorAll('.channel-item').forEach(item => {
-    item.addEventListener('click', () => {
-      document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
-      item.classList.add('active');
-      state.activeChannel = item.dataset.channel;
-      renderMessages();
-    });
+  // Professor rating form
+  document.getElementById('openProfForm').addEventListener('click', () => {
+    document.getElementById('profFormWrap').style.display = 'block';
+    document.getElementById('openProfForm').style.display = 'none';
+    document.getElementById('profFormWrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
-
-  document.getElementById('sendMessage').addEventListener('click', sendMessage);
-  document.getElementById('messageInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  document.getElementById('cancelProfReview').addEventListener('click', () => {
+    document.getElementById('profFormWrap').style.display = 'none';
+    document.getElementById('openProfForm').style.display = '';
+    resetProfForm();
   });
+  document.getElementById('submitProfReview').addEventListener('click', submitProfReview);
+  document.getElementById('profSearchInput').addEventListener('input', renderProfRatings);
+  document.getElementById('filterProfDept').addEventListener('change', renderProfRatings);
 
-  // Sign in button (signed-out state)
+  // Anonymous toggle
+  document.getElementById('anonToggle').addEventListener('change', e => updateAnonLabel(e.target.checked));
+
+  // Auth
   document.getElementById('loginBtn').addEventListener('click', () => {
     document.getElementById('loginModal').classList.add('open');
   });
-
-  // User dropdown toggle (signed-in state)
   document.getElementById('userBtn').addEventListener('click', e => {
     e.stopPropagation();
     document.getElementById('userDropdown').classList.toggle('open');
   });
-
-  // Close dropdown on outside click
   document.addEventListener('click', () => {
     document.getElementById('userDropdown').classList.remove('open');
   });
-
-  // Sign out
   document.getElementById('signOutBtn').addEventListener('click', signOut);
-
-  // Modal close
   document.getElementById('closeLogin').addEventListener('click', () => {
     document.getElementById('loginModal').classList.remove('open');
     resetLoginModal();
@@ -685,9 +690,9 @@ function attachEvents() {
 
   // ID file preview
   document.getElementById('idFileInput').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file    = e.target.files[0];
     const preview = document.getElementById('idPreview');
+    if (!file) return;
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = ev => {
