@@ -408,12 +408,39 @@ function resetLoginModal() {
 }
 
 function updateLoginUI() {
-  const btn = document.getElementById('loginBtn');
+  const loginBtn  = document.getElementById('loginBtn');
+  const userMenu  = document.getElementById('userMenu');
+  const userAvatar= document.getElementById('userAvatar');
+  const userBtnName = document.getElementById('userBtnName');
+  const header    = document.getElementById('userDropdownHeader');
+
   if (state.user) {
-    btn.innerHTML = `${escapeHtml(state.user.name.split(' ')[0])} ${state.user.verified ? '<span style="font-size:0.8em;">✓</span>' : ''}`;
-    btn.style.background = AVATAR_COLORS[0];
-    btn.style.color      = '#fff';
+    loginBtn.style.display = 'none';
+    userMenu.style.display = 'flex';
+    const initials = state.user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    const color    = AVATAR_COLORS[state.user.bannerId.charCodeAt(1) % AVATAR_COLORS.length];
+    userAvatar.textContent    = initials;
+    userAvatar.style.background = color;
+    userBtnName.textContent   = state.user.name.split(' ')[0];
+    header.innerHTML = `
+      <div class="dropdown-user-name">
+        ${escapeHtml(state.user.name)}
+        ${state.user.verified ? '<span class="verified-badge">✓ Verified</span>' : ''}
+      </div>
+      <div class="dropdown-user-meta">${escapeHtml(state.user.email)}</div>
+      <div class="dropdown-user-meta">${escapeHtml(state.user.bannerId)} &bull; ${escapeHtml(state.user.program || '')}</div>`;
+  } else {
+    loginBtn.style.display = '';
+    userMenu.style.display = 'none';
   }
+}
+
+function signOut() {
+  state.user = null;
+  localStorage.removeItem('dal_user');
+  document.getElementById('userDropdown').classList.remove('open');
+  updateLoginUI();
+  showToast('You have been signed out.', '');
 }
 
 // ===== INSTALL PROMPT (PWA) =====
@@ -622,9 +649,26 @@ function attachEvents() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
 
+  // Sign in button (signed-out state)
   document.getElementById('loginBtn').addEventListener('click', () => {
-    if (!state.user) document.getElementById('loginModal').classList.add('open');
+    document.getElementById('loginModal').classList.add('open');
   });
+
+  // User dropdown toggle (signed-in state)
+  document.getElementById('userBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('userDropdown').classList.toggle('open');
+  });
+
+  // Close dropdown on outside click
+  document.addEventListener('click', () => {
+    document.getElementById('userDropdown').classList.remove('open');
+  });
+
+  // Sign out
+  document.getElementById('signOutBtn').addEventListener('click', signOut);
+
+  // Modal close
   document.getElementById('closeLogin').addEventListener('click', () => {
     document.getElementById('loginModal').classList.remove('open');
     resetLoginModal();

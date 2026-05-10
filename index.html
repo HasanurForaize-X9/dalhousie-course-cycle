@@ -34,7 +34,24 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v13M7 11l5 5 5-5"/><path d="M3 19h18"/></svg>
         Install App
       </button>
+      <!-- Signed-out state -->
       <button class="login-btn" id="loginBtn">Sign In</button>
+      <!-- Signed-in state -->
+      <div class="user-menu" id="userMenu" style="display:none;">
+        <button class="user-btn" id="userBtn">
+          <div class="user-avatar" id="userAvatar"></div>
+          <span id="userBtnName"></span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="user-dropdown-header" id="userDropdownHeader"></div>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item signout-item" id="signOutBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            Sign Out
+          </button>
+        </div>
+      </div>
     </div>
   </nav>
 
