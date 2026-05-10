@@ -2,7 +2,7 @@
   "name": "Dalhousie Course Cycle",
   "short_name": "Course Cycle",
   "description": "Honest course reviews and student community for Dalhousie University",
-  "start_url": "/",
+  "start_url": "/dalhousie-course-cycle/",
   "display": "standalone",
   "background_color": "#0B0B0F",
   "theme_color": "#0B0B0F",
