@@ -40,14 +40,73 @@
 
   <!-- LOGIN MODAL -->
   <div class="modal-overlay" id="loginModal">
-    <div class="modal">
+    <div class="modal modal-wide">
       <button class="modal-close" id="closeLogin">&times;</button>
-      <h2>Sign In</h2>
-      <p class="modal-sub">Use your Dalhousie student credentials</p>
-      <input type="text" id="loginName"    placeholder="Your Full Name"                  class="modal-input" />
-      <input type="text" id="loginBanner"  placeholder="Banner ID (e.g. B00123456)"      class="modal-input" />
-      <input type="text" id="loginProgram" placeholder="Program (e.g. Computer Science)" class="modal-input" />
-      <button class="btn-primary full-width" id="submitLogin">Sign In</button>
+      <div class="modal-header">
+        <div class="modal-logo">DCC</div>
+        <div>
+          <h2>Student Verification</h2>
+          <p class="modal-sub">Dalhousie students only &mdash; all fields required</p>
+        </div>
+      </div>
+
+      <div class="modal-steps">
+        <div class="modal-step active" id="step1">
+          <div class="step-num">1</div><span>Your Info</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="modal-step" id="step2">
+          <div class="step-num">2</div><span>Dal ID Upload</span>
+        </div>
+      </div>
+
+      <!-- Step 1: Basic Info -->
+      <div id="stepContent1">
+        <div class="field-group">
+          <label class="field-label">Full Name *</label>
+          <input type="text" id="loginName" placeholder="e.g. John Smith" class="modal-input" />
+        </div>
+        <div class="field-group">
+          <label class="field-label">Dal Email *</label>
+          <div class="input-wrap">
+            <input type="email" id="loginEmail" placeholder="yourname@dal.ca" class="modal-input" />
+            <span class="input-tag">@dal.ca</span>
+          </div>
+          <p class="field-hint">Must be your official Dalhousie email address</p>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">Banner ID *</label>
+            <input type="text" id="loginBanner" placeholder="B00123456" class="modal-input" maxlength="9" />
+          </div>
+          <div class="field-group">
+            <label class="field-label">Program *</label>
+            <input type="text" id="loginProgram" placeholder="e.g. Computer Science" class="modal-input" />
+          </div>
+        </div>
+        <button class="btn-primary full-width" id="nextStep">Continue &rarr;</button>
+      </div>
+
+      <!-- Step 2: ID Upload -->
+      <div id="stepContent2" style="display:none;">
+        <div class="id-upload-area" id="idUploadArea">
+          <div class="id-upload-icon">🪪</div>
+          <p class="id-upload-title">Upload Your Dal Student ID</p>
+          <p class="id-upload-sub">Photo or scan of your Dalhousie student card</p>
+          <input type="file" id="idFileInput" accept="image/*,.pdf" class="id-file-input" />
+          <button class="btn-upload" onclick="document.getElementById('idFileInput').click()">Choose File</button>
+          <div id="idPreview" class="id-preview" style="display:none;"></div>
+        </div>
+        <div class="id-privacy-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Your ID is only used to verify Dal enrolment and is not shared publicly.
+        </div>
+        <div class="step-btns">
+          <button class="btn-cancel" id="backStep">&larr; Back</button>
+          <button class="btn-primary" id="submitLogin">Verify &amp; Sign In</button>
+        </div>
+      </div>
+
     </div>
   </div>
 

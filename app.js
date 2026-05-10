@@ -167,6 +167,7 @@ function reviewCard(r) {
       <div class="reviewer-info">
         <div class="avatar" style="background:${color}">${initials}</div>
         <span>${escapeHtml(r.author)} &bull; ${escapeHtml(r.program || 'Student')}</span>
+        ${r.verified ? '<span class="verified-badge">✓ Verified Dal Student</span>' : ''}
         <span class="recommend-badge ${recClass}">${recText}</span>
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;">
@@ -227,6 +228,7 @@ function submitReview() {
     author:     state.user.name,
     bannerId:   state.user.bannerId,
     program:    state.user.program,
+    verified:   state.user.verified || false,
     helpful:    0,
     date:       new Date().toISOString().split('T')[0],
   });
@@ -274,6 +276,7 @@ function messageEl(m) {
     <div class="msg-body">
       <div class="msg-header">
         <span class="msg-name">${escapeHtml(m.author)}</span>
+        ${m.verified ? '<span class="verified-badge-sm">✓</span>' : ''}
         <span class="msg-time">${m.time}</span>
       </div>
       <div class="msg-text">${escapeHtml(m.text)}</div>
@@ -293,7 +296,7 @@ function sendMessage() {
   if (!state.messages[state.activeChannel]) state.messages[state.activeChannel] = [];
   const color = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
   const time  = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  state.messages[state.activeChannel].push({ id: Date.now(), author: state.user.name, text, time, color });
+  state.messages[state.activeChannel].push({ id: Date.now(), author: state.user.name, text, time, color, verified: state.user.verified || false });
   save();
   input.value = '';
   renderMessages();
@@ -341,22 +344,73 @@ function updateStats() {
 }
 
 // ===== LOGIN =====
+function goToStep2() {
+  const name    = document.getElementById('loginName').value.trim();
+  const email   = document.getElementById('loginEmail').value.trim();
+  const banner  = document.getElementById('loginBanner').value.trim();
+  const program = document.getElementById('loginProgram').value.trim();
+
+  if (!name)    { showToast('Please enter your full name.', 'error'); return; }
+  if (!email.toLowerCase().endsWith('@dal.ca')) {
+    showToast('Please use your official @dal.ca email address.', 'error'); return;
+  }
+  if (!/^B\d{8}$/i.test(banner)) {
+    showToast('Banner ID must be in format B00123456 (B + 8 digits).', 'error'); return;
+  }
+  if (!program) { showToast('Please enter your program.', 'error'); return; }
+
+  document.getElementById('stepContent1').style.display = 'none';
+  document.getElementById('stepContent2').style.display = 'block';
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step2').classList.add('active');
+}
+
+function goToStep1() {
+  document.getElementById('stepContent2').style.display = 'none';
+  document.getElementById('stepContent1').style.display = 'block';
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step1').classList.add('active');
+}
+
 function submitLogin() {
-  const name     = document.getElementById('loginName').value.trim();
-  const bannerId = document.getElementById('loginBanner').value.trim();
-  const program  = document.getElementById('loginProgram').value.trim();
-  if (!name || !bannerId) { showToast('Please enter your name and Banner ID.', 'error'); return; }
-  state.user = { name, bannerId, program };
-  localStorage.setItem('dal_user', JSON.stringify(state.user));
-  document.getElementById('loginModal').classList.remove('open');
-  updateLoginUI();
-  showToast(`Welcome, ${name}!`, 'success');
+  const idFile = document.getElementById('idFileInput').files[0];
+  if (!idFile) {
+    showToast('Please upload your Dal student ID to verify your enrolment.', 'error');
+    return;
+  }
+
+  const name    = document.getElementById('loginName').value.trim();
+  const email   = document.getElementById('loginEmail').value.trim();
+  const banner  = document.getElementById('loginBanner').value.trim();
+  const program = document.getElementById('loginProgram').value.trim();
+
+  // Read the ID image and store a flag (not the raw image) confirming upload
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.user = { name, email, bannerId: banner.toUpperCase(), program, verified: true };
+    localStorage.setItem('dal_user', JSON.stringify(state.user));
+    document.getElementById('loginModal').classList.remove('open');
+    resetLoginModal();
+    updateLoginUI();
+    showToast(`Welcome, ${name}! Your Dal ID has been verified.`, 'success');
+  };
+  reader.readAsDataURL(idFile);
+}
+
+function resetLoginModal() {
+  document.getElementById('stepContent1').style.display = 'block';
+  document.getElementById('stepContent2').style.display = 'none';
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('idPreview').style.display = 'none';
+  document.getElementById('idPreview').innerHTML = '';
+  document.getElementById('idFileInput').value = '';
 }
 
 function updateLoginUI() {
   const btn = document.getElementById('loginBtn');
   if (state.user) {
-    btn.textContent      = state.user.name.split(' ')[0];
+    btn.innerHTML = `${escapeHtml(state.user.name.split(' ')[0])} ${state.user.verified ? '<span style="font-size:0.8em;">✓</span>' : ''}`;
     btn.style.background = AVATAR_COLORS[0];
     btn.style.color      = '#fff';
   }
@@ -573,14 +627,35 @@ function attachEvents() {
   });
   document.getElementById('closeLogin').addEventListener('click', () => {
     document.getElementById('loginModal').classList.remove('open');
+    resetLoginModal();
   });
+  document.getElementById('nextStep').addEventListener('click', goToStep2);
+  document.getElementById('backStep').addEventListener('click', goToStep1);
   document.getElementById('submitLogin').addEventListener('click', submitLogin);
-  document.getElementById('loginBanner').addEventListener('keydown', e => {
-    if (e.key === 'Enter') submitLogin();
-  });
   document.getElementById('loginModal').addEventListener('click', e => {
-    if (e.target === document.getElementById('loginModal'))
+    if (e.target === document.getElementById('loginModal')) {
       document.getElementById('loginModal').classList.remove('open');
+      resetLoginModal();
+    }
+  });
+
+  // ID file preview
+  document.getElementById('idFileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('idPreview');
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        preview.innerHTML = `<img src="${ev.target.result}" alt="ID preview" />`;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      preview.innerHTML = `<div class="id-file-name">📄 ${escapeHtml(file.name)}</div>`;
+      preview.style.display = 'block';
+    }
+    document.getElementById('idUploadArea').classList.add('uploaded');
   });
 
   const installBtn = document.getElementById('installBtn');
