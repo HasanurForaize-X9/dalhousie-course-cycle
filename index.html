@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0B0B0F" />
+  <meta name="description" content="Honest course reviews and student community for Dalhousie University." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <meta name="apple-mobile-web-app-title" content="Course Cycle" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Dalhousie Course Cycle</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <div class="dal-logo">DCC</div>
+      <div>
+        <span class="brand-title">Course Cycle</span>
+        <span class="brand-sub">Dalhousie University</span>
+      </div>
+    </div>
+    <div class="nav-links">
+      <button class="nav-btn active" data-page="reviews">Course Reviews</button>
+      <button class="nav-btn" data-page="channel">Student Channel</button>
+      <button class="nav-btn" data-page="courses">Browse Courses</button>
+    </div>
+    <div class="nav-right">
+      <button class="install-btn" id="installBtn" style="display:none;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v13M7 11l5 5 5-5"/><path d="M3 19h18"/></svg>
+        Install App
+      </button>
+      <button class="login-btn" id="loginBtn">Sign In</button>
+    </div>
+  </nav>
+
+  <!-- LOGIN MODAL -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal">
+      <button class="modal-close" id="closeLogin">&times;</button>
+      <h2>Sign In</h2>
+      <p class="modal-sub">Use your Dalhousie student credentials</p>
+      <input type="text" id="loginName"    placeholder="Your Full Name"                  class="modal-input" />
+      <input type="text" id="loginBanner"  placeholder="Banner ID (e.g. B00123456)"      class="modal-input" />
+      <input type="text" id="loginProgram" placeholder="Program (e.g. Computer Science)" class="modal-input" />
+      <button class="btn-primary full-width" id="submitLogin">Sign In</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/></svg>
+        Student-Powered Reviews
+      </div>
+      <h1>
+        The Student Voice of<br/>
+        <span class="highlight">Dalhousie University</span>
+      </h1>
+      <p>Real reviews from real Dal students. Discover what courses are actually like before you register — and connect with your community.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" id="heroReviewBtn">Write a Review</button>
+        <button class="btn-outline" id="heroChatBtn">Join the Channel</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span id="statReviews">0</span><small>Reviews</small></div>
+        <div class="stat"><span id="statCourses">0</span><small>Courses</small></div>
+        <div class="stat"><span id="statMessages">0</span><small>Messages</small></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="section-glow"></div>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- REVIEWS PAGE -->
+    <section class="page active" id="reviews-page">
+      <div class="container">
+        <div class="page-header">
+          <h2>Course Reviews</h2>
+          <button class="btn-primary" id="openReviewForm">+ Write a Review</button>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="searchInput" placeholder="Search by course name or code..." class="search-input" />
+          <select id="filterDept" class="filter-select">
+            <option value="">All Departments</option>
+            <option value="CSCI">Computer Science (CSCI)</option>
+            <option value="MATH">Mathematics (MATH)</option>
+            <option value="MGMT">Management (MGMT)</option>
+            <option value="BIOL">Biology (BIOL)</option>
+            <option value="CHEM">Chemistry (CHEM)</option>
+            <option value="PHYS">Physics (PHYS)</option>
+            <option value="ENGL">English (ENGL)</option>
+            <option value="ECON">Economics (ECON)</option>
+            <option value="PSYC">Psychology (PSYC)</option>
+            <option value="LAWS">Law (LAWS)</option>
+          </select>
+          <select id="filterRating" class="filter-select">
+            <option value="">All Ratings</option>
+            <option value="5">5 Stars</option>
+            <option value="4">4+ Stars</option>
+            <option value="3">3+ Stars</option>
+          </select>
+        </div>
+
+        <!-- Review Form -->
+        <div class="review-form-wrap" id="reviewFormWrap" style="display:none;">
+          <div class="review-form">
+            <h3>Write a Course Review</h3>
+            <p class="form-note">Only submit reviews for courses you have fully completed.</p>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Course Code *</label>
+                <input type="text" id="courseCode" placeholder="e.g. CSCI 1105" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label>Course Name *</label>
+                <input type="text" id="courseName" placeholder="e.g. Introduction to Programming" class="form-input" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Professor</label>
+                <input type="text" id="profName" placeholder="e.g. Dr. Smith" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label>Term Completed *</label>
+                <select id="termSelect" class="form-input">
+                  <option value="">Select term</option>
+                  <option>Fall 2025</option>
+                  <option>Winter 2025</option>
+                  <option>Summer 2025</option>
+                  <option>Fall 2024</option>
+                  <option>Winter 2024</option>
+                  <option>Summer 2024</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row three-col">
+              <div class="form-group">
+                <label>Overall Rating *</label>
+                <div class="star-input" id="ratingOverall" data-field="overall"></div>
+              </div>
+              <div class="form-group">
+                <label>Difficulty</label>
+                <div class="star-input" id="ratingDifficulty" data-field="difficulty"></div>
+              </div>
+              <div class="form-group">
+                <label>Workload</label>
+                <div class="star-input" id="ratingWorkload" data-field="workload"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Your Review *</label>
+              <textarea id="reviewText" placeholder="Share your honest experience — what was great, what was challenging, tips for future students..." class="form-textarea" rows="5"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Would you recommend this course?</label>
+              <div class="radio-group">
+                <label class="radio-label"><input type="radio" name="recommend" value="yes" /> Yes, definitely</label>
+                <label class="radio-label"><input type="radio" name="recommend" value="maybe" /> Maybe</label>
+                <label class="radio-label"><input type="radio" name="recommend" value="no" /> No</label>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn-cancel" id="cancelReview">Cancel</button>
+              <button class="btn-primary" id="submitReview">Submit Review</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="reviewsList"></div>
+        <div class="empty-state" id="reviewsEmpty">
+          <div class="empty-icon">📝</div>
+          <h3>No reviews yet</h3>
+          <p>Be the first Dalhousie student to share your course experience!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHANNEL PAGE -->
+    <section class="page" id="channel-page">
+      <div class="container channel-layout">
+        <div class="channel-sidebar">
+          <h3>Channels</h3>
+          <ul class="channel-list">
+            <li class="channel-item active" data-channel="general"># general</li>
+            <li class="channel-item" data-channel="course-help"># course-help</li>
+            <li class="channel-item" data-channel="study-groups"># study-groups</li>
+            <li class="channel-item" data-channel="internships"># internships</li>
+            <li class="channel-item" data-channel="campus-life"># campus-life</li>
+            <li class="channel-item" data-channel="textbooks"># textbooks</li>
+          </ul>
+        </div>
+        <div class="channel-main">
+          <div class="channel-header">
+            <span id="currentChannelName"># general</span>
+            <span id="currentChannelDesc" class="channel-desc">General student discussion</span>
+          </div>
+          <div class="messages-area" id="messagesArea"></div>
+          <div class="message-input-area">
+            <input type="text" id="messageInput" placeholder="Message #general..." class="message-input" />
+            <button class="btn-primary" id="sendMessage">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COURSES PAGE -->
+    <section class="page" id="courses-page">
+      <div class="container">
+        <div class="page-header"><h2>Browse Courses</h2></div>
+        <div class="courses-grid" id="coursesGrid"></div>
+        <div class="empty-state" id="coursesEmpty">
+          <div class="empty-icon">📚</div>
+          <h3>No courses reviewed yet</h3>
+          <p>Course cards appear here after students submit reviews.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Dalhousie Course Cycle</p>
+      <p class="footer-sub">An independent student review platform. Reviews represent student opinions only and do not reflect the views of Dalhousie University.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

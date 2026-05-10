@@ -1,0 +1,16 @@
+{
+  "name": "Dalhousie Course Cycle",
+  "short_name": "Course Cycle",
+  "description": "Honest course reviews and student community for Dalhousie University",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0B0F",
+  "theme_color": "#0B0B0F",
+  "orientation": "portrait-primary",
+  "categories": ["education", "social"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "lang": "en"
+}
