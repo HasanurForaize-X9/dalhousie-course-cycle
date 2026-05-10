@@ -513,20 +513,53 @@ function escapeAttr(str) {
 
 // ===== AUTOCOMPLETE =====
 function attachAutocomplete() {
+  // Course search bar
   setupAutocomplete(
     document.getElementById('searchInput'),
+    DAL_COURSES,
+    (c) => c.code + ' — ' + c.name,
     (course) => { document.getElementById('searchInput').value = course.code; renderReviews(); }
   );
+  // Course review form — code input
   setupAutocomplete(
     document.getElementById('courseCode'),
+    DAL_COURSES,
+    (c) => c.code + ' — ' + c.name,
     (course) => {
       document.getElementById('courseCode').value = course.code;
       document.getElementById('courseName').value = course.name;
     }
   );
+  // Prof search bar
+  setupAutocomplete(
+    document.getElementById('profSearchInput'),
+    DAL_PROFESSORS,
+    (p) => p.name + ' · ' + p.dept,
+    (prof) => {
+      document.getElementById('profSearchInput').value = prof.name;
+      renderProfRatings();
+    }
+  );
+  // Prof rating form — professor name input
+  setupAutocomplete(
+    document.getElementById('profRateName'),
+    DAL_PROFESSORS,
+    (p) => p.name + ' · ' + p.dept,
+    (prof) => {
+      document.getElementById('profRateName').value = prof.name;
+      // Auto-select the matching department in the dropdown
+      const deptEl = document.getElementById('profRateDept');
+      for (const opt of deptEl.options) {
+        if (opt.value === prof.dept || opt.text === prof.dept) {
+          deptEl.value = opt.value;
+          break;
+        }
+      }
+    }
+  );
 }
 
-function setupAutocomplete(inputEl, onSelect) {
+function setupAutocomplete(inputEl, db, labelFn, onSelect) {
   if (!inputEl) return;
   const wrap = document.createElement('div');
   const cs   = window.getComputedStyle(inputEl);
@@ -544,30 +577,38 @@ function setupAutocomplete(inputEl, onSelect) {
   let currentMatches   = [];
   let clickingDropdown = false;
 
+  function matchItem(item, q) {
+    return Object.values(item).some(v => typeof v === 'string' && v.toLowerCase().includes(q));
+  }
+
   function showSuggestions(query) {
     if (!query) { closeDropdown(); return; }
     const q = query.toLowerCase();
-    currentMatches = DAL_COURSES.filter(c =>
-      c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
-    ).slice(0, 20);
+    currentMatches = db.filter(item => matchItem(item, q)).slice(0, 20);
     if (!currentMatches.length) { closeDropdown(); return; }
 
     // Group by faculty
     const grouped = {};
-    currentMatches.forEach((c, i) => {
-      const fac = c.faculty || 'Other';
+    currentMatches.forEach((item, i) => {
+      const fac = item.faculty || 'Other';
       if (!grouped[fac]) grouped[fac] = [];
-      grouped[fac].push({ ...c, _idx: i });
+      grouped[fac].push({ ...item, _idx: i });
     });
 
     let html = '';
-    for (const [faculty, courses] of Object.entries(grouped)) {
+    for (const [faculty, items] of Object.entries(grouped)) {
       html += `<li class="ac-faculty-header">${escapeHtml(faculty)}</li>`;
-      courses.forEach(c => {
-        html += `<li class="autocomplete-item" data-idx="${c._idx}">
-          <span class="ac-code">${highlight(c.code, q)}</span>
-          <span class="ac-name">${highlight(c.name, q)}</span>
-        </li>`;
+      items.forEach(item => {
+        const label = labelFn(item);
+        const parts = label.split(/( — | · )/);
+        html += `<li class="autocomplete-item" data-idx="${item._idx}">`;
+        if (parts.length >= 3) {
+          html += `<span class="ac-code">${highlight(parts[0], q)}</span>
+                   <span class="ac-name">${highlight(parts[2], q)}</span>`;
+        } else {
+          html += `<span class="ac-name" style="flex:1">${highlight(label, q)}</span>`;
+        }
+        html += `</li>`;
       });
     }
     dropdown.innerHTML = html;

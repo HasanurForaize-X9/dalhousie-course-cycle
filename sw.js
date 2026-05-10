@@ -1,10 +1,12 @@
-const CACHE = 'dal-hub-v6';
+const CACHE = 'dal-hub-v7';
 const BASE  = self.location.pathname.replace(/\/sw\.js$/, '');
 const ASSETS = [
   BASE + '/',
   BASE + '/index.html',
   BASE + '/styles.css',
   BASE + '/app.js',
+  BASE + '/courses-db.js',
+  BASE + '/profs-db.js',
   BASE + '/manifest.json',
 ];
 
