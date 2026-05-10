@@ -809,6 +809,63 @@ main { padding: 2.5rem 0; }
 .empty-icon  { font-size: 3rem; margin-bottom: 1rem; }
 .empty-state h3 { font-size: 1.05rem; margin-bottom: 0.5rem; color: var(--text); font-weight: 700; }
 
+/* ===== AUTOCOMPLETE ===== */
+.autocomplete-list {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--card);
+  border: 1px solid var(--border-yellow);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow), var(--shadow-yellow);
+  z-index: 50;
+  list-style: none;
+  overflow: hidden;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.autocomplete-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid var(--border);
+}
+.autocomplete-item:last-child { border-bottom: none; }
+.autocomplete-item:hover,
+.autocomplete-item.ac-active { background: rgba(255,208,0,0.08); }
+
+.ac-code {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--yellow);
+  background: rgba(255,208,0,0.1);
+  border: 1px solid rgba(255,208,0,0.2);
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ac-name {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.autocomplete-list mark {
+  background: rgba(255,208,0,0.3);
+  color: var(--yellow);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
 /* ===== SECTION DIVIDER ===== */
 .section-glow {
   height: 1px;

@@ -31,6 +31,7 @@ function init() {
   renderCourses();
   updateStats();
   attachEvents();
+  attachAutocomplete();
   listenForInstallPrompt();
 }
 
@@ -394,6 +395,98 @@ function escapeHtml(str) {
 }
 function escapeAttr(str) {
   return String(str).replace(/'/g, "\\'");
+}
+
+// ===== AUTOCOMPLETE =====
+function attachAutocomplete() {
+  // Search bar on reviews page
+  setupAutocomplete(
+    document.getElementById('searchInput'),
+    (course) => {
+      document.getElementById('searchInput').value = course.code;
+      renderReviews();
+    }
+  );
+
+  // Course code field in review form
+  setupAutocomplete(
+    document.getElementById('courseCode'),
+    (course) => {
+      document.getElementById('courseCode').value = course.code;
+      document.getElementById('courseName').value = course.name;
+    }
+  );
+}
+
+function setupAutocomplete(inputEl, onSelect) {
+  if (!inputEl) return;
+
+  // Create dropdown container
+  const wrap = document.createElement('div');
+  wrap.style.position = 'relative';
+  inputEl.parentNode.insertBefore(wrap, inputEl);
+  wrap.appendChild(inputEl);
+
+  const dropdown = document.createElement('ul');
+  dropdown.className = 'autocomplete-list';
+  wrap.appendChild(dropdown);
+
+  function showSuggestions(query) {
+    if (!query || query.length < 1) { dropdown.style.display = 'none'; return; }
+    const q = query.toLowerCase();
+    const matches = DAL_COURSES.filter(c =>
+      c.code.toLowerCase().includes(q) ||
+      c.name.toLowerCase().includes(q)
+    ).slice(0, 8);
+
+    if (!matches.length) { dropdown.style.display = 'none'; return; }
+
+    dropdown.innerHTML = matches.map((c, i) => `
+      <li class="autocomplete-item" data-idx="${i}">
+        <span class="ac-code">${highlight(c.code, q)}</span>
+        <span class="ac-name">${highlight(c.name, q)}</span>
+      </li>`).join('');
+
+    dropdown.style.display = 'block';
+
+    dropdown.querySelectorAll('.autocomplete-item').forEach((li, i) => {
+      li.addEventListener('mousedown', e => {
+        e.preventDefault();
+        onSelect(matches[i]);
+        dropdown.style.display = 'none';
+      });
+    });
+  }
+
+  inputEl.addEventListener('input',  () => showSuggestions(inputEl.value));
+  inputEl.addEventListener('focus',  () => { if (inputEl.value) showSuggestions(inputEl.value); });
+  inputEl.addEventListener('blur',   () => setTimeout(() => dropdown.style.display = 'none', 150));
+  inputEl.addEventListener('keydown', e => {
+    const items = dropdown.querySelectorAll('.autocomplete-item');
+    const active = dropdown.querySelector('.autocomplete-item.ac-active');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = active ? active.nextElementSibling : items[0];
+      if (active) active.classList.remove('ac-active');
+      if (next)   next.classList.add('ac-active');
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = active ? active.previousElementSibling : items[items.length - 1];
+      if (active) active.classList.remove('ac-active');
+      if (prev)   prev.classList.add('ac-active');
+    } else if (e.key === 'Enter' && active) {
+      e.preventDefault();
+      active.dispatchEvent(new MouseEvent('mousedown'));
+    } else if (e.key === 'Escape') {
+      dropdown.style.display = 'none';
+    }
+  });
+}
+
+function highlight(text, query) {
+  const safe = escapeHtml(text);
+  const safeQ = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return safe.replace(new RegExp(`(${safeQ})`, 'gi'), '<mark>$1</mark>');
 }
 
 // ===== EVENTS =====
