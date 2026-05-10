@@ -192,9 +192,6 @@ function submitReview() {
   if (!code || !name || !term || !text || !state.ratings.overall) {
     showToast('Please fill in all required fields and set an overall rating.', 'error'); return;
   }
-  if (text.length < 50) {
-    showToast('Review must be at least 50 characters.', 'error'); return;
-  }
   if (!state.user) {
     showToast('Please sign in first to submit a review.', 'error');
     document.getElementById('loginModal').classList.add('open'); return;
@@ -317,9 +314,6 @@ function submitProfReview() {
 
   if (!profName || !dept || !term || !text || !state.profRatingsForm.profOverall) {
     showToast('Please fill in all required fields and set an overall rating.', 'error'); return;
-  }
-  if (text.length < 30) {
-    showToast('Review must be at least 30 characters.', 'error'); return;
   }
   if (!state.user) {
     showToast('Please sign in first to submit a rating.', 'error');
