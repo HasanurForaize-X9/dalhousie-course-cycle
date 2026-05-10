@@ -150,16 +150,90 @@
           <input type="text" id="searchInput" placeholder="Search by course name or code..." class="search-input" />
           <select id="filterDept" class="filter-select">
             <option value="">All Departments</option>
-            <option value="CSCI">Computer Science (CSCI)</option>
-            <option value="MATH">Mathematics (MATH)</option>
-            <option value="MGMT">Management (MGMT)</option>
-            <option value="BIOL">Biology (BIOL)</option>
-            <option value="CHEM">Chemistry (CHEM)</option>
-            <option value="PHYS">Physics (PHYS)</option>
-            <option value="ENGL">English (ENGL)</option>
-            <option value="ECON">Economics (ECON)</option>
-            <option value="PSYC">Psychology (PSYC)</option>
-            <option value="LAWS">Law (LAWS)</option>
+            <optgroup label="Faculty of Agriculture">
+              <option value="AGRI">Agriculture (AGRI)</option>
+              <option value="ANSC">Animal Science (ANSC)</option>
+              <option value="FOSC">Food Science (FOSC)</option>
+              <option value="PLSC">Plant Science (PLSC)</option>
+            </optgroup>
+            <optgroup label="Faculty of Architecture & Planning">
+              <option value="ARCH">Architecture (ARCH)</option>
+              <option value="PLAN">Planning (PLAN)</option>
+              <option value="EVDS">Environmental Design (EVDS)</option>
+            </optgroup>
+            <optgroup label="Faculty of Arts & Social Sciences">
+              <option value="CLAS">Classics (CLAS)</option>
+              <option value="ECON">Economics (ECON)</option>
+              <option value="ENGL">English (ENGL)</option>
+              <option value="FREN">French (FREN)</option>
+              <option value="GWST">Gender &amp; Women's Studies (GWST)</option>
+              <option value="HIST">History (HIST)</option>
+              <option value="INTD">International Development Studies (INTD)</option>
+              <option value="MUSI">Music (MUSI)</option>
+              <option value="PHIL">Philosophy (PHIL)</option>
+              <option value="POLI">Political Science (POLI)</option>
+              <option value="PSYC">Psychology (PSYC)</option>
+              <option value="RUSS">Russian Studies (RUSS)</option>
+              <option value="SOSA">Sociology &amp; Social Anthropology (SOSA)</option>
+              <option value="THEA">Theatre (THEA)</option>
+            </optgroup>
+            <optgroup label="Faculty of Computer Science">
+              <option value="CSCI">Computer Science (CSCI)</option>
+            </optgroup>
+            <optgroup label="Faculty of Dentistry">
+              <option value="DENT">Dentistry (DENT)</option>
+              <option value="DHYG">Dental Hygiene (DHYG)</option>
+            </optgroup>
+            <optgroup label="Faculty of Engineering">
+              <option value="CHEE">Chemical Engineering (CHEE)</option>
+              <option value="CIVL">Civil &amp; Resource Engineering (CIVL)</option>
+              <option value="ECED">Electrical &amp; Computer Engineering (ECED)</option>
+              <option value="ENGI">Engineering (ENGI)</option>
+              <option value="IENG">Industrial Engineering (IENG)</option>
+              <option value="MECH">Mechanical Engineering (MECH)</option>
+              <option value="MINE">Mining Engineering (MINE)</option>
+              <option value="MREN">Materials Engineering (MREN)</option>
+            </optgroup>
+            <optgroup label="Faculty of Health">
+              <option value="HESA">Health Administration (HESA)</option>
+              <option value="HPRO">Health Promotion (HPRO)</option>
+              <option value="KINE">Kinesiology (KINE)</option>
+              <option value="NURS">Nursing (NURS)</option>
+              <option value="OCCU">Occupational Therapy (OCCU)</option>
+              <option value="PHYT">Physiotherapy (PHYT)</option>
+              <option value="RECR">Recreation Management (RECR)</option>
+              <option value="SLWK">Social Work (SLWK)</option>
+            </optgroup>
+            <optgroup label="Faculty of Law">
+              <option value="LAWS">Law (LAWS)</option>
+            </optgroup>
+            <optgroup label="Faculty of Management">
+              <option value="COMM">Commerce (COMM)</option>
+              <option value="INFO">Information Management (INFO)</option>
+              <option value="LIBS">Library &amp; Information Studies (LIBS)</option>
+              <option value="MGMT">Management (MGMT)</option>
+              <option value="PUAD">Public Administration (PUAD)</option>
+            </optgroup>
+            <optgroup label="Faculty of Medicine">
+              <option value="ANAT">Anatomy &amp; Neurobiology (ANAT)</option>
+              <option value="BIOC">Biochemistry &amp; Molecular Biology (BIOC)</option>
+              <option value="COMED">Community Health &amp; Epidemiology (COMED)</option>
+              <option value="MICI">Microbiology &amp; Immunology (MICI)</option>
+              <option value="PHAR">Pharmacology (PHAR)</option>
+              <option value="PATH">Pathology (PATH)</option>
+              <option value="PHYL">Physiology &amp; Biophysics (PHYL)</option>
+            </optgroup>
+            <optgroup label="Faculty of Science">
+              <option value="BIOL">Biology (BIOL)</option>
+              <option value="CHEM">Chemistry (CHEM)</option>
+              <option value="ERTH">Earth Sciences (ERTH)</option>
+              <option value="ENVS">Environmental Science (ENVS)</option>
+              <option value="MATH">Mathematics (MATH)</option>
+              <option value="NESC">Neuroscience (NESC)</option>
+              <option value="OCEA">Oceanography (OCEA)</option>
+              <option value="PHYS">Physics &amp; Atmospheric Science (PHYS)</option>
+              <option value="STAT">Statistics (STAT)</option>
+            </optgroup>
           </select>
           <select id="filterRating" class="filter-select">
             <option value="">All Ratings</option>
@@ -241,17 +315,56 @@
           <input type="text" id="profSearchInput" placeholder="Search professor by name or department..." class="search-input" />
           <select id="filterProfDept" class="filter-select">
             <option value="">All Departments</option>
-            <option value="Computer Science">Computer Science</option>
-            <option value="Mathematics">Mathematics</option>
-            <option value="Management">Management</option>
-            <option value="Biology">Biology</option>
-            <option value="Chemistry">Chemistry</option>
-            <option value="Physics">Physics</option>
-            <option value="English">English</option>
-            <option value="Economics">Economics</option>
-            <option value="Psychology">Psychology</option>
-            <option value="Engineering">Engineering</option>
-            <option value="Law">Law</option>
+            <optgroup label="Faculty of Agriculture">
+              <option>Agriculture</option><option>Animal Science</option>
+              <option>Food Science</option><option>Plant Science</option>
+            </optgroup>
+            <optgroup label="Faculty of Architecture & Planning">
+              <option>Architecture</option><option>Planning</option><option>Environmental Design</option>
+            </optgroup>
+            <optgroup label="Faculty of Arts & Social Sciences">
+              <option>Classics</option><option>Economics</option><option>English</option>
+              <option>French</option><option>Gender &amp; Women's Studies</option><option>History</option>
+              <option>International Development Studies</option><option>Music</option>
+              <option>Philosophy</option><option>Political Science</option><option>Psychology</option>
+              <option>Russian Studies</option><option>Sociology &amp; Social Anthropology</option>
+              <option>Theatre</option>
+            </optgroup>
+            <optgroup label="Faculty of Computer Science">
+              <option>Computer Science</option>
+            </optgroup>
+            <optgroup label="Faculty of Dentistry">
+              <option>Dentistry</option><option>Dental Hygiene</option>
+            </optgroup>
+            <optgroup label="Faculty of Engineering">
+              <option>Chemical Engineering</option><option>Civil &amp; Resource Engineering</option>
+              <option>Electrical &amp; Computer Engineering</option><option>Industrial Engineering</option>
+              <option>Mechanical Engineering</option><option>Mining Engineering</option>
+              <option>Materials Engineering</option>
+            </optgroup>
+            <optgroup label="Faculty of Health">
+              <option>Health Administration</option><option>Health Promotion</option>
+              <option>Kinesiology</option><option>Nursing</option><option>Occupational Therapy</option>
+              <option>Physiotherapy</option><option>Recreation Management</option><option>Social Work</option>
+            </optgroup>
+            <optgroup label="Faculty of Law">
+              <option>Law</option>
+            </optgroup>
+            <optgroup label="Faculty of Management">
+              <option>Commerce</option><option>Information Management</option>
+              <option>Library &amp; Information Studies</option><option>Management</option>
+              <option>Public Administration</option>
+            </optgroup>
+            <optgroup label="Faculty of Medicine">
+              <option>Anatomy &amp; Neurobiology</option><option>Biochemistry &amp; Molecular Biology</option>
+              <option>Community Health &amp; Epidemiology</option><option>Microbiology &amp; Immunology</option>
+              <option>Pharmacology</option><option>Pathology</option><option>Physiology &amp; Biophysics</option>
+            </optgroup>
+            <optgroup label="Faculty of Science">
+              <option>Biology</option><option>Chemistry</option><option>Earth Sciences</option>
+              <option>Environmental Science</option><option>Mathematics</option><option>Neuroscience</option>
+              <option>Oceanography</option><option>Physics &amp; Atmospheric Science</option><option>Statistics</option>
+            </optgroup>
           </select>
         </div>
 
@@ -269,13 +382,56 @@
                 <label>Department *</label>
                 <select id="profRateDept" class="form-input">
                   <option value="">Select department</option>
-                  <option>Computer Science</option><option>Mathematics</option><option>Statistics</option>
-                  <option>Management</option><option>Economics</option><option>Biology</option>
-                  <option>Chemistry</option><option>Physics</option><option>Engineering</option>
-                  <option>English</option><option>Psychology</option><option>Sociology</option>
-                  <option>Political Science</option><option>History</option><option>Philosophy</option>
-                  <option>Law</option><option>Kinesiology</option><option>Nursing</option>
-                  <option>Architecture</option><option>Oceanography</option>
+                  <optgroup label="Faculty of Agriculture">
+                    <option>Agriculture</option><option>Animal Science</option>
+                    <option>Food Science</option><option>Plant Science</option>
+                  </optgroup>
+                  <optgroup label="Faculty of Architecture & Planning">
+                    <option>Architecture</option><option>Planning</option><option>Environmental Design</option>
+                  </optgroup>
+                  <optgroup label="Faculty of Arts & Social Sciences">
+                    <option>Classics</option><option>Economics</option><option>English</option>
+                    <option>French</option><option>Gender &amp; Women's Studies</option><option>History</option>
+                    <option>International Development Studies</option><option>Music</option>
+                    <option>Philosophy</option><option>Political Science</option><option>Psychology</option>
+                    <option>Russian Studies</option><option>Sociology &amp; Social Anthropology</option>
+                    <option>Theatre</option>
+                  </optgroup>
+                  <optgroup label="Faculty of Computer Science">
+                    <option>Computer Science</option>
+                  </optgroup>
+                  <optgroup label="Faculty of Dentistry">
+                    <option>Dentistry</option><option>Dental Hygiene</option>
+                  </optgroup>
+                  <optgroup label="Faculty of Engineering">
+                    <option>Chemical Engineering</option><option>Civil &amp; Resource Engineering</option>
+                    <option>Electrical &amp; Computer Engineering</option><option>Industrial Engineering</option>
+                    <option>Mechanical Engineering</option><option>Mining Engineering</option>
+                    <option>Materials Engineering</option>
+                  </optgroup>
+                  <optgroup label="Faculty of Health">
+                    <option>Health Administration</option><option>Health Promotion</option>
+                    <option>Kinesiology</option><option>Nursing</option><option>Occupational Therapy</option>
+                    <option>Physiotherapy</option><option>Recreation Management</option><option>Social Work</option>
+                  </optgroup>
+                  <optgroup label="Faculty of Law">
+                    <option>Law</option>
+                  </optgroup>
+                  <optgroup label="Faculty of Management">
+                    <option>Commerce</option><option>Information Management</option>
+                    <option>Library &amp; Information Studies</option><option>Management</option>
+                    <option>Public Administration</option>
+                  </optgroup>
+                  <optgroup label="Faculty of Medicine">
+                    <option>Anatomy &amp; Neurobiology</option><option>Biochemistry &amp; Molecular Biology</option>
+                    <option>Community Health &amp; Epidemiology</option><option>Microbiology &amp; Immunology</option>
+                    <option>Pharmacology</option><option>Pathology</option><option>Physiology &amp; Biophysics</option>
+                  </optgroup>
+                  <optgroup label="Faculty of Science">
+                    <option>Biology</option><option>Chemistry</option><option>Earth Sciences</option>
+                    <option>Environmental Science</option><option>Mathematics</option><option>Neuroscience</option>
+                    <option>Oceanography</option><option>Physics &amp; Atmospheric Science</option><option>Statistics</option>
+                  </optgroup>
                 </select>
               </div>
             </div>
