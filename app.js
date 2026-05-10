@@ -549,13 +549,28 @@ function setupAutocomplete(inputEl, onSelect) {
     const q = query.toLowerCase();
     currentMatches = DAL_COURSES.filter(c =>
       c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
-    ).slice(0, 8);
+    ).slice(0, 20);
     if (!currentMatches.length) { closeDropdown(); return; }
-    dropdown.innerHTML = currentMatches.map((c, i) => `
-      <li class="autocomplete-item" data-idx="${i}">
-        <span class="ac-code">${highlight(c.code, q)}</span>
-        <span class="ac-name">${highlight(c.name, q)}</span>
-      </li>`).join('');
+
+    // Group by faculty
+    const grouped = {};
+    currentMatches.forEach((c, i) => {
+      const fac = c.faculty || 'Other';
+      if (!grouped[fac]) grouped[fac] = [];
+      grouped[fac].push({ ...c, _idx: i });
+    });
+
+    let html = '';
+    for (const [faculty, courses] of Object.entries(grouped)) {
+      html += `<li class="ac-faculty-header">${escapeHtml(faculty)}</li>`;
+      courses.forEach(c => {
+        html += `<li class="autocomplete-item" data-idx="${c._idx}">
+          <span class="ac-code">${highlight(c.code, q)}</span>
+          <span class="ac-name">${highlight(c.name, q)}</span>
+        </li>`;
+      });
+    }
+    dropdown.innerHTML = html;
     dropdown.style.display = 'block';
   }
 
